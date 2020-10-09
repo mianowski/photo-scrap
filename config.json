@@ -1,0 +1,5 @@
+{
+    "threads": 6,
+    "photos_dir": "../photos",
+    "csv_dir": "csvs"
+}
