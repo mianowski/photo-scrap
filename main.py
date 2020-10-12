@@ -24,7 +24,7 @@ if __name__ == '__main__':
 
     albums = scrap.get_user_albums(user_ids)
     albums.to_csv(os.path.join(config['csv_dir'], 'albums.csv'))
-    photos = scrap.get_album_photos(albums.get_album_ids())
+    photos = scrap._get_album_photos_single(albums.get_album_ids())
     photos_dir = config['photos_dir']
     photos.add_file_path_each_photo(photos_dir)
     photos.to_csv(os.path.join(config['csv_dir'], 'photos.csv'))

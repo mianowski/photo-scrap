@@ -1,22 +1,25 @@
 from __future__ import annotations  # for type hints of typed lists
-from .rest_client import RestClient
-from .csv_writer import CsvWriter
+
 import os
 import itertools
 from tqdm import tqdm
+from dataclasses import dataclass
+
+from .rest_client import RestClient
+from .csv_writer import CsvWriter
 
 
+@dataclass
 class UsersList():
-    def __init__(self, users: list[dict]):
-        self.users = users
+    users: list[dict]
 
     def to_csv(self, csv_path: str = 'users.csv'):
         return CsvWriter.to_csv(self.users, csv_path, ['id', 'address.city', 'address.geo.lat', 'address.geo.lng', 'address.street', 'address.suite', 'address.zipcode', 'company.bs', 'company.catchPhrase', 'company.name', 'email', 'name', 'phone', 'username', 'website'])
 
 
+@dataclass
 class AlbumsList():
-    def __init__(self, albums: list[dict]):
-        self.albums = albums
+    albums: list[dict]
 
     def get_album_ids(self):
         return [album['id'] for album in self.albums if 'id' in album]
@@ -25,9 +28,9 @@ class AlbumsList():
         return CsvWriter.to_csv(self.albums, csv_path, ['user_id', 'id', 'title'])
 
 
+@dataclass
 class PhotosList():
-    def __init__(self, photos: list[dict]):
-        self.photos = photos
+    photos: list[dict]
 
     def add_file_path_each_photo(self, photos_dir: str):
         for photo in self.photos:
@@ -57,7 +60,7 @@ class JphScrapper():
         self.threads = threads
 
     @ staticmethod
-    def get_album_photos(album_ids: list[int]) -> PhotosList:
+    def _get_album_photos_single(album_ids: list[int]) -> PhotosList:
         return PhotosList(list(itertools.chain.from_iterable([RestClient.getAlbumPhotos(album_id) for album_id in album_ids])))
 
     @staticmethod
