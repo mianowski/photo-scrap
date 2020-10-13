@@ -6,6 +6,28 @@ import os
 import csv
 
 
+class SplitEvenTest(unittest.TestCase):
+    def test_correctness_for_indivisible(self):
+        self.assertEquals(jph.split_even(
+            [0, 1, 2, "three", {4}], 3), [[0, 1], [2, "three"], [{4}]])
+
+    def test_correctness_for_divisible(self):
+        self.assertEquals(jph.split_even(
+            [0, 1, 2, 3, 4, 5], 3), [[0, 1], [2, 3], [4, 5]])
+
+    def test_too_short_list_is_split_to_correct_number_of_parts(self):
+        self.assertEquals(jph.split_even(
+            [0, 1], 3), [[0], [1], []])
+
+    def test_empty_list_is_split_to_empty_lists(self):
+        self.assertEquals(jph.split_even(
+            [], 3), [[], [], []])
+
+    def test_negative_parts_count_result_in_empty_result(self):
+        self.assertEquals(jph.split_even(
+            [1, 2, 3], -1), [])
+
+
 class AlbumListTest(unittest.TestCase):
     albums = [{'userId': 3, 'id': 21, 'title': 'repudiandae voluptatem optio est consequatur rem in temporibus et'},
               {'userId': 3, 'id': 22, 'title': 'et rem non provident vel ut'},

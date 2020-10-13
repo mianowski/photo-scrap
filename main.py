@@ -4,7 +4,7 @@ import threading
 import json
 
 if __name__ == '__main__':
-    config = {'threads': 1,
+    config = {'threads': 6,
               'photos_dir': os.path.join('..', 'photos'),
               'csv_dir': os.path.join('..', 'csv'),
               }
@@ -19,12 +19,13 @@ if __name__ == '__main__':
     threads_count = config['threads']
     scrap = JphScrapper()
     user_ids = [1]
-    users = scrap.get_users_list(user_ids)
+    # users = scrap._get_users_list_single(user_ids)
+    users = scrap.get_users_list(user_ids, threads_count)
     users.to_csv(os.path.join(config['csv_dir'], 'users.csv'))
 
-    albums = scrap.get_user_albums(user_ids)
+    albums = scrap.get_user_albums(user_ids, threads_count)
     albums.to_csv(os.path.join(config['csv_dir'], 'albums.csv'))
-    photos = scrap._get_album_photos_single(albums.get_album_ids())
+    photos = scrap.get_album_photos(albums.get_album_ids(), threads_count)
     photos_dir = config['photos_dir']
     photos.add_file_path_each_photo(photos_dir)
     photos.to_csv(os.path.join(config['csv_dir'], 'photos.csv'))

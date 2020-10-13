@@ -2,11 +2,17 @@ from __future__ import annotations  # for type hints of typed lists
 
 import os
 import itertools
+import concurrent.futures
 from tqdm import tqdm
 from dataclasses import dataclass
 
 from .rest_client import RestClient
 from .csv_writer import CsvWriter
+
+
+def split_even(l: list, parts: int):
+    size = len(l)//parts + 1 if len(l) % parts else len(l)//parts
+    return [l[i*size: (i+1)*size] for i in range(parts)]
 
 
 @dataclass
@@ -51,22 +57,49 @@ class PhotosList():
                     photo['thumbnailUrl'], photo['file_path'])
 
     def split(self, parts):
-        size = len(self.photos)//parts + 1
-        return [PhotosList(self.photos[i:i + size]) for i in range(0, len(self.photos), size)]
+        return [PhotosList(i) for i in split_even(self.photos, parts)]
 
 
 class JphScrapper():
-    def __init__(self, user_ids: list = [], threads: int = 1):
+    def __init__(self, user_ids: list = [], threads: int = 4):
         self.threads = threads
 
-    @ staticmethod
-    def _get_album_photos_single(album_ids: list[int]) -> PhotosList:
-        return PhotosList(list(itertools.chain.from_iterable([RestClient.getAlbumPhotos(album_id) for album_id in album_ids])))
+    @staticmethod
+    def _get_users_list_single(user_ids: list[int]) -> list[dict]:
+        return [RestClient.getUser(user_id) for user_id in user_ids]
 
     @staticmethod
-    def get_users_list(user_ids: list[int]) -> UsersList:
-        return UsersList([RestClient.getUser(user_id) for user_id in user_ids])
+    def get_users_list(user_ids: list[int], threads: int) -> UsersList:
+        fun = JphScrapper._get_users_list_single
+        results = JphScrapper.parallelize(user_ids, threads, fun)
+        return UsersList(results)
 
     @staticmethod
-    def get_user_albums(user_ids: list[int]) -> AlbumsList:
-        return AlbumsList(list(itertools.chain.from_iterable([RestClient.get_user_albums(user_id) for user_id in user_ids])))
+    def _get_album_photos_single(album_ids: list[int]) -> list[dict]:
+        return list(itertools.chain.from_iterable([RestClient.getAlbumPhotos(album_id) for album_id in album_ids]))
+
+    @staticmethod
+    def get_album_photos(user_ids: list[int], threads: int) -> PhotosList:
+        fun = JphScrapper._get_album_photos_single
+        results = JphScrapper.parallelize(user_ids, threads, fun)
+        return PhotosList(results)
+
+    @staticmethod
+    def _get_user_albums_single(user_ids: list[int]) -> list[dict]:
+        return list(itertools.chain.from_iterable([RestClient.get_user_albums(user_id) for user_id in user_ids]))
+
+    @staticmethod
+    def get_user_albums(user_ids: list[int], threads: int) -> AlbumsList:
+        fun = JphScrapper._get_user_albums_single
+        results = JphScrapper.parallelize(user_ids, threads, fun)
+        return AlbumsList(results)
+
+    @staticmethod
+    def parallelize(args, threads, fun):
+        split_args = split_even(args, threads)
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            futures = [executor.submit(fun, ids)
+                       for ids in split_args]
+        results = list(itertools.chain.from_iterable(
+            [f.result() for f in futures]))
+        return results
