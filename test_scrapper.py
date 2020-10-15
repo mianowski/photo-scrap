@@ -100,7 +100,7 @@ class AlbumListTest(unittest.TestCase):
     def test_to_csv_writes_file(self):
         filename = 'test_albums.csv'
         self.assertTrue(self.album_list.to_csv(filename))
-        self.assertEquals(os.path.exists(filename), True)
+        self.assertEqual(os.path.exists(filename), True)
         os.remove(filename)
 
 
@@ -132,7 +132,7 @@ class PhotosListTest(unittest.TestCase):
         os.remove(self.filename)
 
     def test_to_csv_writes_file(self):
-        self.assertEquals(os.path.exists(self.filename), True)
+        self.assertEqual(os.path.exists(self.filename), True)
 
     def test_to_csv_writes_file_path_column(self):
         with open(self.filename, newline='') as csvfile:
@@ -143,8 +143,8 @@ class PhotosListTest(unittest.TestCase):
         with open(self.filename, newline='') as csvfile:
             r = csv.DictReader(csvfile)
             test_photo = next(r)
-        self.assertEquals(test_photo['file_path'],
-                          PhotosListTest.photos_dir+'/92c952.png')
+        self.assertEqual(test_photo['file_path'],
+                         PhotosListTest.photos_dir+'/92c952.png')
 
 
 class PhotoScrapperTest(unittest.TestCase):
@@ -203,27 +203,27 @@ class PhotoScrapperTest(unittest.TestCase):
     def test_get_user_list(self):
         user_ids = [1, 2, 3]
         users_list = self.scrapper.get_users_list(user_ids, self.threads)
-        self.assertEquals(
+        self.assertEqual(
             sorted([user["id"] for user in users_list.users]), sorted(user_ids))
 
     def test_get_user_albums(self):
         user_ids = [1, 2]
         albums_list = self.scrapper.get_user_albums(user_ids, self.threads)
-        self.assertEquals(sorted([album["id"] for album in albums_list.albums]), [
-                          11, 12, 13, 21, 22, 23])
+        self.assertEqual(sorted([album["id"] for album in albums_list.albums]), [
+            11, 12, 13, 21, 22, 23])
 
     def test_get_album_photos(self):
         album_ids = [7, 8]
         photos_list = self.scrapper.get_album_photos(album_ids, self.threads)
-        self.assertEquals(sorted([photo["id"] for photo in photos_list.photos]), [
-                          71, 72, 81, 82])
+        self.assertEqual(sorted([photo["id"] for photo in photos_list.photos]), [
+            71, 72, 81, 82])
 
     def test_get_album_photos_threads_count_unimportant(self):
         album_ids = [7, 8]
         photos_list1 = self.scrapper.get_album_photos(album_ids, self.threads)
         photos_list2 = self.scrapper.get_album_photos(
             album_ids, random.randint(1, 10))
-        self.assertEquals(sorted([photo["id"] for photo in photos_list1.photos]), sorted(
+        self.assertEqual(sorted([photo["id"] for photo in photos_list1.photos]), sorted(
             [photo["id"] for photo in photos_list2.photos]))
 
 

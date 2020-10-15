@@ -1,7 +1,7 @@
 from photo_scrap.scrapper import PhotoScrapper
 from photo_scrap.rest_client import RestClient
 import os
-import threading
+import sys
 import json
 
 
@@ -11,12 +11,14 @@ def main():
               'csv_dir': os.path.join('..', 'csv'),
               'user_ids': [1]
               }
+
     try:
         with open(sys.argv[1]) as config_file:
             user_config = json.load(config_file)
             config.update(user_config)
-    except:
+    except Exception as e:
         print("Cannot use config file, I'll load defaults")
+        print(e)
 
     threads_count = config['threads']
     user_ids = config['user_ids']
