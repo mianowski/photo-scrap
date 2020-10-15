@@ -1,5 +1,9 @@
 {
     "threads": 6,
     "photos_dir": "../photos",
-    "csv_dir": "csvs"
+    "csv_dir": "csvs",
+    "user_ids": [
+        1,
+        2
+    ]
 }

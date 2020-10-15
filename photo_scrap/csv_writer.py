@@ -4,25 +4,22 @@ import os
 import nested_csv
 
 
-class CsvWriter():
-    @staticmethod
-    def to_csv(items: list[dict], csv_filepath: str, default_columns: list[str]) -> bool:
-        # csv_columns = items[0].keys() if items else default_columns
-        csv_columns = nested_csv.generate_fieldnames(
-            items[0]) if items else default_columns
-        key = 'id'
-        csv_columns.remove(key)
-        csv_columns.insert(0, key)
-        Path(os.path.dirname(csv_filepath)).mkdir(
-            parents=True, exist_ok=True)
-        try:
-            with open(csv_filepath, 'w') as csvfile:
-                writer = nested_csv.NestedDictWriter(
-                    csvfile, fieldnames=csv_columns)
-                writer.writeheader()
-                for item in items:
-                    writer.writerow(item)
-        except IOError:
-            print("File write error")
-            return False
-        return True
+def to_csv(items: list[dict], csv_filepath: str, default_columns: list[str]) -> bool:
+    csv_columns = nested_csv.generate_fieldnames(
+        items[0]) if items else default_columns
+    key = 'id'
+    csv_columns.remove(key)
+    csv_columns.insert(0, key)
+    Path(os.path.dirname(csv_filepath)).mkdir(
+        parents=True, exist_ok=True)
+    try:
+        with open(csv_filepath, 'w') as csvfile:
+            writer = nested_csv.NestedDictWriter(
+                csvfile, fieldnames=csv_columns)
+            writer.writeheader()
+            for item in items:
+                writer.writerow(item)
+    except IOError:
+        print("File write error")
+        return False
+    return True
